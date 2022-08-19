@@ -93,18 +93,18 @@ async function SushiswapData() {
 
 function writeFile(data = [], name) {
     try {
-        const writableStream = fs.createWriteStream(`csv/${name}`);
+        const writableStream = fs.createWriteStream(`csv/${name}.csv`);
 
         const columns = [''];
 
         data.map((row) => {
-            columns.push(row.symbol);
+            columns.push(`${row.symbol}_${name}`);
         })
 
         const stringifier = stringify({ header: true, columns: columns });
 
         for (let i = 0; i < data.length; i++) {
-            const row = [`${data[i].symbol} (${data[i].address})`];
+            const row = [`${data[i].symbol}_${name}`];
 
             for (let j = 0; j < data.length; j++) {
                 if (i === j) row.push('1');
@@ -131,8 +131,8 @@ function writeFile(data = [], name) {
         const sushi_data = await SushiswapData();
         console.log('sushi_data = ', sushi_data);
 
-        writeFile(pancake_data, 'pancake.csv');
-        writeFile(uniswap_data, 'uniswap.csv');
-        writeFile(sushi_data, 'sushiswap.csv');
+        writeFile(pancake_data, 'pancake');
+        writeFile(uniswap_data, 'uniswap');
+        writeFile(sushi_data, 'sushiswap');
     }, 300000);
 })()
