@@ -91,26 +91,31 @@ async function SushiswapData() {
     }
 }
 
-function writeFile(data = [], name) {
+function writeFile(data) {
     try {
-        const writableStream = fs.createWriteStream(`csv/${name}.csv`);
+        const writableStream = fs.createWriteStream(`csv/market.csv`);
 
         const columns = [''];
 
-        data.map((row) => {
-            columns.push(`${row.symbol}_${name}`);
-        })
+        for (const key in data) {
+            data[key].map((row) => {
+                columns.push(`${row.symbol}_${key}`);
+            })
+        }
 
         const stringifier = stringify({ header: true, columns: columns });
 
-        for (let i = 0; i < data.length; i++) {
-            const row = [`${data[i].symbol}_${name}`];
-
-            for (let j = 0; j < data.length; j++) {
-                if (i === j) row.push('1');
-                else row.push(Number(data[i].price) / Number(data[j].price));
+        for (const key in data) {
+            for (let i = 0; i < data[key].length; i++) {
+                const row = [`${data[key][i].symbol}_${key}`];
+                for (const _key in data) {
+                    for (let j = 0; j < data[_key].length; j++) {
+                        if (i === j && key === _key) row.push('1');
+                        else row.push(Number(data[key][i].price) / Number(data[_key][j].price));
+                    }
+                }
+                stringifier.write(row);
             }
-            stringifier.write(row);
         }
 
         stringifier.pipe(writableStream);
@@ -131,8 +136,12 @@ function writeFile(data = [], name) {
         const sushi_data = await SushiswapData();
         console.log('sushi_data = ', sushi_data);
 
-        writeFile(pancake_data, 'pancake');
-        writeFile(uniswap_data, 'uniswap');
-        writeFile(sushi_data, 'sushiswap');
+        writeFile(
+            {
+                'pancake': pancake_data,
+                'uniswap': uniswap_data,
+                'sushiswap': sushi_data
+            }
+        );
     }, 300000);
 })()
