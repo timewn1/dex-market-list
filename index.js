@@ -75,6 +75,8 @@ async function SushiswapData() {
         const tokens = await sushiData.exchange.tokens({});
 
         for (let i = 0; i < tokens.length; i++) {
+            if (tokens[i].derivedETH === 0) continue;
+            if (tokens[i].derivedETH < 0.0001) continue;
             return_data.push({
                 'symbol': tokens[i].symbol,
                 'address': tokens[i].id,
@@ -96,13 +98,13 @@ function writeFile(data = [], name) {
         const columns = [''];
 
         data.map((row) => {
-            columns.push(`${row.symbol} (${row.address})`);
+            columns.push(row.symbol);
         })
 
         const stringifier = stringify({ header: true, columns: columns });
 
         for (let i = 0; i < data.length; i++) {
-            const row = [data[i].symbol];
+            const row = [`${data[i].symbol} (${data[i].address})`];
 
             for (let j = 0; j < data.length; j++) {
                 if (i === j) row.push('1');
@@ -119,18 +121,18 @@ function writeFile(data = [], name) {
 }
 
 (async () => {
-    // setInterval(async () => {
-    const pancake_data = await PancakeswapData();
-    console.log('pancake_data = ', pancake_data);
+    setInterval(async () => {
+        const pancake_data = await PancakeswapData();
+        console.log('pancake_data = ', pancake_data);
 
-    // const uniswap_data = await UniswapData();
-    // console.log('uniswap_data = ', uniswap_data);
+        const uniswap_data = await UniswapData();
+        console.log('uniswap_data = ', uniswap_data);
 
-    // const sushi_data = await SushiswapData();
-    // console.log('sushi_data = ', sushi_data);
+        const sushi_data = await SushiswapData();
+        console.log('sushi_data = ', sushi_data);
 
-    writeFile(pancake_data, 'pancake.csv');
-    // writeFile(uniswap_data, 'uniswap.csv');
-    // writeFile(sushi_data, 'sushiswap.csv');
-    // }, 300000);
+        writeFile(pancake_data, 'pancake.csv');
+        writeFile(uniswap_data, 'uniswap.csv');
+        writeFile(sushi_data, 'sushiswap.csv');
+    }, 300000);
 })()
