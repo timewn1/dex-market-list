@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@sushiswap/sushi-data": "^1.0.26",
+    "@uniswap/sdk": "^3.0.3",
+    "axios": "^0.27.2",
+    "csv-stringify": "^6.2.0",
+    "web3": "^1.7.5"
+  }
+}
